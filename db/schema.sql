@@ -1,6 +1,6 @@
-DROP DATABASE if EXISTS employee.db;
-CREATE DATABASE employee.db;
-USE employee.db;
+DROP TABLE IF EXISTS deparment;
+DROP TABLE IF EXISTS roles;
+DROP TABLE IF EXISTS employee;
 
 CREATE TABLE deparment (
   id INTEGER PRIMARY KEY,
