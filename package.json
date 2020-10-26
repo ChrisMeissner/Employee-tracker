@@ -4,6 +4,7 @@
   "description": "",
   "main": "server.js",
   "dependencies": {
+    "console.table": "^0.10.0",
     "express": "^4.17.1",
     "inquirer": "^7.3.3",
     "jest": "^26.6.1",
