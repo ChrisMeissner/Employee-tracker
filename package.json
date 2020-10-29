@@ -1,20 +1,10 @@
 {
   "name": "employee-tracker",
   "version": "1.0.0",
-  "description": "",
-  "main": "server.js",
-  "dependencies": {
-    "console.table": "^0.10.0",
-    "express": "^4.17.1",
-    "inquirer": "^7.3.3",
-    "jest": "^26.6.1",
-    "mysql2": "^2.2.5",
-    "nodemon": "^2.0.6"
-  },
-  "devDependencies": {},
+  "description": "## Description This application allows you to track your employees and other various data using the command line and MySQL.",
+  "main": "app.js",
   "scripts": {
-    "test": "jest",
-    "start": "nodemon server.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -25,5 +15,12 @@
   "bugs": {
     "url": "https://github.com/ChrisMeissner/Employee-tracker/issues"
   },
-  "homepage": "https://github.com/ChrisMeissner/Employee-tracker#readme"
+  "homepage": "https://github.com/ChrisMeissner/Employee-tracker#readme",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "express": "^4.17.1",
+    "inquirer": "^7.3.3",
+    "mysql2": "^2.2.5",
+    "nodemon": "^2.0.6"
+  }
 }
