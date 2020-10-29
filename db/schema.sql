@@ -1,6 +1,8 @@
-DROP TABLE IF EXISTS deparment;
-DROP TABLE IF EXISTS roles;
-DROP TABLE IF EXISTS employee;
+DROP DATABASE IF EXISTS employeeDB;
+
+CREATE DATABASE employeeDB;
+
+USE employeeDB;
 
 CREATE TABLE deparment (
   id INTEGER PRIMARY KEY,
@@ -11,7 +13,7 @@ CREATE TABLE role (
   id INTEGER PRIMARY KEY,
   title VARCHAR(30) NOT NULL,
   salary DECIMAL (10, 2),
-  department_id INTEGER NOT NULL
+  department_id INTEGER UNSIGNED NOT NULL
 );
 
 CREATE TABLE employee (
