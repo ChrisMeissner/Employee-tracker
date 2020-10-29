@@ -1,77 +1,200 @@
-//download and get client
+//download and require dependencies
 
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
 const consoleTable = require('console.table');
-const { response } = require('express');
 
-// create connection to database
-const connection = mysql.createConnection ({
+// database connection
+const connection = mysql.createConnection({
   host: 'localhost',
+  port: 3306,
   user: 'root',
+  password: 'password',
   database: 'employeeDB'
+});
+
+connection.connect(err => {
+  if(err) throw err;
+})
+
+//view all departments
+    //presented with a formatted table showing department names and 
+    //department ids
+ function viewAllDepartments() {
+   connection.promise().query(`SELECT * FROM department`)
+    .then(([rows]) => {
+      console.table(rows);
+      startApp();
+    })
+  
+
+
 }
 
-function startApp() {
+//view all roles
+    //presented with the job title, role id, the department that role belongs to, 
+    //and the salary for that role
+ function viewAllRoles() {
+  connection.promise().query(`SELECT * FROM role`)
+  .then(([rows]) => {
+    console.table(rows);
+    startApp();
+  })
+
+}
+
+//view all employees
+    //presented with a formatted table showing employee data, 
+    //including employee ids, first names, last names, job titles, 
+    //departments, salaries, and managers that the employees report to
+ function viewAllEmployees() {
+  connection.promise().query(`SELECT * FROM employee`)
+  .then(([rows]) => {
+    console.table(rows);
+    startApp();
+  })
+
+
+}
+
+//add a department
+    //prompted to enter the name of the department and that department 
+    //is added to the database
+ function addDepartment() {
+  inquirer.prompt({
+    name: 'name',
+    type: 'input',
+    message: 'Enter a name for the department.',
+    validate: addDepartmentNameInput => {
+      if(addDepartmentNameInput) {
+        return true;
+      } else {
+        console.log("This department must have a name.");
+      }
+    }
+  }).then(res => {
+    connection.promise().query(`INSERT INTO department SET ?`, res)
+      .then(() => {
+        console.log('Added Department');
+        startApp();
+      })
+  })
+  };
+
+//add a role
+    //prompted to enter the name, salary, 
+    //and department for the role and that role is added to the database
+ function addRole() {
+   connection.promise().query(`SELECT * FROM department`)
+    .then(([rows]) => {
+      const allDep = rows.map(row => ({name:row.name, value:row.id}));
+      inquirer.prompt([
+      {
+        name: 'title',
+        type: 'input',
+        message: 'Enter the name for this role.',
+        validate: addRoleNameInput => {
+          if(addRoleNameInput) {
+            return true;
+          } else {
+            console.log("This role must have a name.");
+          }
+        }
+      },
+      {
+        name:'salary',
+        type: 'input',
+        message: 'Enter the salary for this role.',
+        validate: addRoleSalaryInput => {
+          if(addRoleSalaryInput) {
+            return true;
+          } else {
+            console.log("This role must have a salary.");
+          }
+        }
+      },
+      {
+        name: 'department_id',
+        type: 'list',
+        message: 'Enter the department for this role.',
+        choices: allDep
+      }
+    ]).then(res => {
+      connection.promise().query(`INSERT INTO role SET ?`, res)
+        .then(() => {
+          console.log('Added Role');
+          startApp();
+        })
+      
+    })
+  })
+};
+
+//update an employee role
+    //prompted to select an employee to update and their new role 
+    //and this information is updated in the database 
+ function updateEmployeeRole() {
+   connection.promise().query(`SELECT * FROM employee`)
+    .then(([rows]) => {
+      const allEmp = rows.map(row => ({name:row.first_name + " " + row.last_name, value: row.id}))
+      connection.promise().query(`SELECT * FROM role`)
+        .then(([rows]) => {
+          const allRole = rows.map(row => ({name:row.title, value: row.id}))
+            inquirer.prompt([
+              {
+                name: 'empId',
+                type: 'list',
+                message: 'Choose an employee to update.',
+                choices: allEmp
+              },
+              {
+                name: 'roleId',
+                type: 'list',
+                message: 'Choose employee\'s role.',
+                choices: allRole
+              }
+            ]).then(res => {
+              connection.promise().query(`UPDATE employee SET role_id = ? WHERE id = ?`, 
+              [res.roleId, res.empId])
+                .then(() => {
+                  console.log('Updated employee\'s role.');
+                  startApp();
+                })
+            })
+    })
+    })
+
+}
+
+const startApp = () => {
   inquirer.prompt({
     name: "menu",
     type: 'list',
-    message: "What would you like to do?"
+    message: "What would you like to do?",
     choices: [
       "View All Departments",
       "View All Roles",
-      "View All Employees"
+      "View All Employees",
       "Add A Department",
       "Add A Role",
       "Add An Employee",
-      "Update An Employee Role",
-      "Update Employee Managers",
-      "View Employees By Manager",
-      "Delete Departments"
-      "Delete Role",
-      "Delete Employees",
-      "View Department Budget"
+      "Update An Employee Role"
     ]
-  }).then(responses => {
-    if(responses.menu === "View All Departments"){
-      showDepartments();
-      break;
-    }else if(responses.menu === "View All Roles"){
-      showRoles();
-      break;
-    }else if(responses.menu === "View All Employees"){
-      showEmployees();
-      break;
+  }).then(response => {
+    if(response.menu === "View All Departments"){
+      viewAllDepartments();
+    }else if(response.menu === "View All Roles"){
+      viewAllRoles();
+    }else if(response.menu === "View All Employees"){
+      viewAllEmployees();
     }else if(response.menu === "Add A Department"){
       addDepartment();
-      break;
     }else if(response.menu === "Add A Role"){
       addRole();
-      break;
     } else if(response.menu === "Add An Employee"){
       addEmployee();
-      break;
-    } else if(response.menu === "Add An Employee Role"){
-      addEmployeeRole();
-      break;
-    } else if(response.menu === "Update Employee Managers"){
-      updateEmployeeManager();
-      break;
-    } else if(response.menu === "View Employees By Manager"){
-      viewEmployeeByManager();
-      break;
-    } else if(response.menu === "Delete Departments"){
-      deleteDepartments();
-      break;
-    } else if(response.menu === "Delete Role"){
-      deleteRole();
-      break;
-    } else if(response.menu === "Delete Employee"){
-      deleteEmployee();
-      break;
-    } else if(response.menu === "View Department Budget"){
-      viewDepartmentBudget();
-      break
+    } else if(response.menu === "Update An Employee Role"){
+      updateEmployeeRole();
     } else {
       return ("You must select a valid option");
     }
@@ -80,19 +203,39 @@ function startApp() {
 
 startApp();
 
-//When starting application you are presented with the following:
-//view all departments
-    //presented with a formatted table showing department names and department ids
-//view all roles
-    //presented with the job title, role id, the department that role belongs to, and the salary for that role
-//view all employees
-    //presented with a formatted table showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
-//add a department
-    //prompted to enter the name of the department and that department is added to the database 
-//add a role
-    //prompted to enter the name, salary, and department for the role and that role is added to the database
-//add an employee
-    //prompted to enter the employee’s first name, last name, role, and manager and that employee is added to the database
-//update an employee role
-    //prompted to select an employee to update and their new role and this information is updated in the database 
+//TODO
+//modify showAllEmployees to show everything by doing joins
+//finish addEmployee()
+//get console.tables to work 
+//run showAllEmployees instead of startApp() because showAllEmployees also runs startApp();
 
+//*
+//?
+//!
+
+
+
+// BONUS
+//  function updateEmployeeManager() {
+
+// }
+
+//  function viewEmployeesByManager() {
+
+// }
+
+//  function deleteDepartments() {
+
+// }
+
+//  function deleteEmployee() {
+
+// }
+
+//  function deleteRole() {
+
+// }
+
+//  function viewDepartmentBudget() {
+
+// }
