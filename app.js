@@ -44,7 +44,7 @@ function viewAllRoles() {
 //including employee ids, first names, last names, job titles, 
 //departments, salaries, and managers that the employees report to
 function viewAllEmployees() {
-  connection.promise().query(`SELECT * FROM employee`)
+  connection.promise().query(`SELECT employee.first_name, employee.last_name, role_id, manager_id FROM employee`)
     .then(([rows]) => {
       console.table(rows);
       startApp();
@@ -188,9 +188,9 @@ function addEmployee() {
       ])
     })
     .then(res => {
-      connection.promise().query(`INSERT INTO role SET ?`, res)
+      connection.promise().query(`INSERT INTO employee SET ?`, res)
         .then(() => {
-          console.log('Added Role');
+          console.log('Added Employee');
           startApp();
         })
     })
